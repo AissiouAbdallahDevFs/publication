@@ -1,0 +1,40 @@
+import Postlist from "../components/Postslist";
+import {PostData} from '../interfaces'
+import { useEffect, useState } from "react";
+
+
+const Posts: React.FC = () =>{
+const [allPosts , setAllPosts] = useState<PostData[] | null >(null)
+const [numberOfPosts , setNumberOfPosts] = useState<number>(5)
+console.log(allPosts)
+
+const localOrStateNumber = () => localStorage.getItem('number') ||numberOfPosts
+const localOrStateNum = localOrStateNumber()
+
+useEffect(() => {
+    const getPosts =async() => {
+        const response = await fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${localOrStateNum}`)
+        const data: PostData[] = await response.json()
+        setAllPosts(data);
+    }
+    getPosts()
+},[localOrStateNum])
+
+const onChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
+    setNumberOfPosts(+e.target.value)
+    localStorage.setItem('number',e.target.value)
+}
+
+    return(
+        <div className="post-container">
+            <h1>Page Principale</h1>
+                    <div style={{display:'flex', flexDirection: "column"}}>
+                        <label htmlFor="posts">Nombre de publication {localOrStateNum}</label>
+                        <input type="range" min={1} max={20} onChange={onChange} defaultValue={localOrStateNum} />
+                        <Postlist allPosts={allPosts}/>
+                    </div>
+        </div>
+    )
+}
+
+export default Posts
